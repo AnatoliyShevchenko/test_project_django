@@ -14,7 +14,7 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, 'apps'))
+sys.path.append(os.path.join(BASE_DIR, "apps"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -30,65 +30,65 @@ REDIS_PORT = config("REDIS_PORT")
 REDIS_URL = f"{REDIS_PROTOCOL}{REDIS_HOST}:{REDIS_PORT}"
 ALLOWED_HOSTS = ["*"]
 
-AUTH_USER_MODEL = 'auths.Client'
+AUTH_USER_MODEL = "auths.Client"
 # Application definition
 
 INSTALLED_APPS = [
     # Third-Party
-    'phonenumber_field',
+    "phonenumber_field", "drf_spectacular",
     # Django
-    'rest_framework', 'rest_framework_simplejwt', 'corsheaders',
-    'django_extensions', 'django.contrib.admin',
-    'django.contrib.auth', 'django.contrib.contenttypes',
-    'django.contrib.sessions', 'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "rest_framework", "rest_framework_simplejwt", "corsheaders",
+    "django_extensions", "django.contrib.admin",
+    "django.contrib.auth", "django.contrib.contenttypes",
+    "django.contrib.sessions", "django.contrib.messages",
+    "django.contrib.staticfiles",
     # Apps
     "auths.apps.AuthsConfig",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'settings.urls'
+ROOT_URLCONF = "settings.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'settings.wsgi.application'
+WSGI_APPLICATION = "settings.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASS'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASS"),
+        "HOST": config("DB_HOST"),
+        "PORT": config("DB_PORT"),
     }
 }
 
@@ -98,23 +98,23 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 # Django cors headers
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_METHODS = ['*']
-CORS_ALLOW_HEADERS = ['*']
+CORS_ALLOW_METHODS = ["*"]
+CORS_ALLOW_HEADERS = ["*"]
 
 # Logger
 LOGGING = {
@@ -156,9 +156,9 @@ CACHES = {
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -168,24 +168,31 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Rest Framework
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
-
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Test job",
+    "DESCRIPTION": "Test job",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    # OTHER SETTINGS
+}
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(weeks=1),

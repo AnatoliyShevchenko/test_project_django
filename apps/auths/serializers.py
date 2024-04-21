@@ -4,6 +4,9 @@ from rest_framework import serializers
 # Third-Party
 from phonenumber_field.serializerfields import PhoneNumberField
 
+# Python
+import re
+
 # Local
 from .models import Client
 
@@ -14,10 +17,27 @@ class PhoneNumberSerializer(serializers.Serializer):
     phone_number = PhoneNumberField()
 
 
+def validate_otp(value):
+    """
+    Валидатор для поля otp.
+
+    :param value: Значение поля otp.
+    :type value: str
+    :return: Отформатированное значение поля otp или вызывает исключение ValidationError, если значение недопустимо.
+    :rtype: str
+    """
+    # Проверяем, что значение состоит только из цифр
+    if not re.match("^\d{4}$", value):
+        raise serializers.ValidationError("OTP должен состоять только из цифр.")
+    
+    return value
+
 class OTPSerializer(serializers.Serializer):
     """Serializer for OTP."""
 
-    otp = serializers.CharField(min_length=4, max_length=4)
+    otp = serializers.CharField(
+        min_length=4, max_length=4, validators=[validate_otp]
+    )
 
 
 class ClientSerializer(serializers.ModelSerializer):
