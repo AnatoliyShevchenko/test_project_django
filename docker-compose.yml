@@ -1,0 +1,44 @@
+version: '3.7'
+
+services:
+
+  redis:
+    image: redis
+    container_name: redis_django
+    ports:
+      - "6383:6379"
+    restart: always
+
+  postgres:
+    image: postgres
+    container_name: django_postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    restart: always
+
+  web:
+    build: .
+    container_name: django_web
+    command: gunicorn --bind 0.0.0.0:8000 settings.wsgi
+    restart: always
+    depends_on:
+      - redis
+      - postgres
+    ports:
+      - "8000:8000"
+
+  nginx:
+    image: nginx
+    container_name: web-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./staticfiles:/app/staticfiles/
+    depends_on:
+      - web
+    restart: always
