@@ -25,6 +25,8 @@ services:
     container_name: django_web
     command: gunicorn --bind 0.0.0.0:8000 settings.wsgi
     restart: always
+    volumes:
+      - ./staticfiles:/app/staticfiles
     depends_on:
       - redis
       - postgres
