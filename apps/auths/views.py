@@ -31,9 +31,20 @@ logger = logging.getLogger(__name__)
 
 @permission_classes([AllowAny])
 class CustomAuth(APIView):
-    """Custom authorization with request phone number."""
+    """
+    Custom authorization with request phone number.
+    This view handles authentication using a phone number.
+    """
 
     def create_tokens(self, client: Client):
+        """
+        Create access and refresh tokens for the client user.
+
+        :param client: The client user for whom tokens are created.
+        :type client: Client
+        :return: Dictionary containing access and refresh tokens.
+        :rtype: dict
+        """
         while True:
             try:
                 access_token = AccessToken.for_user(client)
@@ -47,11 +58,27 @@ class CustomAuth(APIView):
                 pass
 
     def get(self, request: Request) -> Response:
+        """
+        Handle GET requests.
+
+        :param request: The request object.
+        :type request: Request
+        :return: Response indicating that POST and PATCH methods should be used.
+        :rtype: Response
+        """
         return Response(status=status.HTTP_200_OK, data={
-            "response":"use POST and PUT methods"
+            "response":"use POST and PATCH methods"
         })
 
     def post(self, request: Request) -> Response:
+        """
+        Handle POST requests for phone number verification.
+
+        :param request: The request object.
+        :type request: Request
+        :return: Response indicating that a confirmation code has been sent.
+        :rtype: Response
+        """
         serializer = PhoneNumberSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone_number = serializer.validated_data.get("phone_number")
@@ -66,6 +93,14 @@ class CustomAuth(APIView):
         })
 
     def patch(self, request: Request) -> Response:
+        """
+        Handle PATCH requests for OTP verification.
+
+        :param request: The request object.
+        :type request: Request
+        :return: Response indicating successful authentication or failure.
+        :rtype: Response
+        """
         serializer = OTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         otp = serializer.validated_data.get("otp")
@@ -82,18 +117,29 @@ class CustomAuth(APIView):
         
         logger.info(msg="User not found!")
         return Response(
-            data={"response": "Пользователь не существует"},
+            data={"response": "Пользователь не найден, возможно вы ждали дольше 2 минут. Вернитесь на предыдущий шаг."},
             status=status.HTTP_400_BAD_REQUEST
         )
 
 
 @permission_classes([IsAuthenticated])
 class PersonalArea(APIView):
-    """View for manipulate with data in personal area."""
+    """
+    View for manipulating data in the personal area.
+    This view provides endpoints for accessing and modifying client data in the personal area.
+    """
 
     authentication_classes = [JWTAuthentication]
 
     def get(self, request: Request) -> Response:
+        """
+        Handle GET requests to retrieve client data.
+
+        :param request: The request object.
+        :type request: Request
+        :return: Response with client data.
+        :rtype: Response
+        """
         client: Client = request.user
         serializer = ClientSerializer(instance=client)
         data = serializer.data
@@ -101,6 +147,14 @@ class PersonalArea(APIView):
         return Response(status=status.HTTP_200_OK, data=data)
     
     def patch(self, request: Request) -> Response:
+        """
+        Handle PATCH requests to update inviter information.
+
+        :param request: The request object.
+        :type request: Request
+        :return: Response indicating success or failure of updating inviter information.
+        :rtype: Response
+        """
         client: Client = request.user
         serializer = InviteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

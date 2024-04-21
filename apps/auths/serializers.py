@@ -9,15 +9,20 @@ from .models import Client
 
 
 class PhoneNumberSerializer(serializers.Serializer):
+    """Serializer for phone numbers."""
+
     phone_number = PhoneNumberField()
 
 
 class OTPSerializer(serializers.Serializer):
+    """Serializer for OTP."""
+
     otp = serializers.CharField(min_length=4, max_length=4)
 
 
 class ClientSerializer(serializers.ModelSerializer):
-    
+    """Serializer for get information about clients."""
+
     followers = serializers.SerializerMethodField()
 
     class Meta:
@@ -36,5 +41,7 @@ class ClientSerializer(serializers.ModelSerializer):
     
 
 class InviteSerializer(serializers.Serializer):
+    """Serializer for invite codes."""
+    
     invited_by = serializers.CharField(min_length=6, max_length=6)
 

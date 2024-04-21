@@ -26,6 +26,12 @@ class ClientManager(BaseUserManager):
     """Custom class for User Manager."""
 
     def generate_otp(self):
+        """
+        Generate a random OTP (One-Time Password).
+        
+        :return: A randomly generated OTP.
+        :rtype: str
+        """
         while True:
             otp = ""
             while len(otp) < 4:
@@ -34,7 +40,15 @@ class ClientManager(BaseUserManager):
             if not client:
                 return otp
 
-    def generate_invite_code(self, count_symbols=6):
+    def generate_invite_code(self, count_symbols: int = 6):
+        """
+        Generate a random invite code.
+
+        :param count_symbols: The number of symbols in the generated code (default is 6).
+        :type count_symbols: int
+        :return: A randomly generated invite code.
+        :rtype: str
+        """
         alphabet = string.ascii_letters + string.digits
         while True:
             code = ''.join(
@@ -47,8 +61,15 @@ class ClientManager(BaseUserManager):
                 return code
 
     def create_user(self, phone_number: str) -> "Client":
-        """Registration user."""
+        """
+        Create a new client user.
 
+        :param phone_number: The phone number of the client user.
+        :type phone_number: str
+        :raises ValidationError: If the phone number is not provided or is not correct.
+        :return: The newly created client user.
+        :rtype: Client
+        """
         if not phone_number:
             raise ValidationError(message="Phone number required")
         phone = to_python(value=phone_number)
@@ -65,8 +86,17 @@ class ClientManager(BaseUserManager):
     def create_superuser(
         self, phone_number: str, password: str
     ) -> "Client":
-        """Create admin."""
+        """
+        Create a new superuser client.
 
+        :param phone_number: The phone number of the superuser client.
+        :type phone_number: str
+        :param password: The password for the superuser client.
+        :type password: str
+        :raises ValidationError: If the phone number is not provided or is not correct.
+        :return: The newly created superuser client.
+        :rtype: Client
+        """
         if not phone_number:
             raise ValidationError(message="Phone number required")
         phone = to_python(value=phone_number)
