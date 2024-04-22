@@ -3,12 +3,17 @@ from rest_framework import serializers
 
 # Third-Party
 from phonenumber_field.serializerfields import PhoneNumberField
+from drf_spectacular.utils import extend_schema_field
 
 # Python
 import re
 
 # Local
 from .models import Client
+
+
+class SomeResponseSerializer(serializers.Serializer):
+    response = serializers.CharField(max_length=255)
 
 
 class PhoneNumberSerializer(serializers.Serializer):
@@ -51,6 +56,7 @@ class ClientSerializer(serializers.ModelSerializer):
             "phone_number", "invite_code", "invited_by", "followers"
         )
 
+    @extend_schema_field(list[dict])
     def get_followers(self, obj: Client):
         data = Client.objects.filter(
             invited_by__invite_code=obj.invite_code
@@ -64,4 +70,9 @@ class InviteSerializer(serializers.Serializer):
     """Serializer for invite codes."""
     
     invited_by = serializers.CharField(min_length=6, max_length=6)
+
+
+class TokensSerializer(serializers.Serializer):
+    access_token = serializers.CharField()
+    refresh_token = serializers.CharField()
 

@@ -14,6 +14,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 # Django
 from django.core.cache import cache
 
+# Third-Party
+from drf_spectacular.utils import extend_schema
+
 # Python
 import logging
 import time
@@ -21,7 +24,8 @@ import time
 # Local
 from .serializers import (
     PhoneNumberSerializer, OTPSerializer, ClientSerializer,
-    InviteSerializer,
+    InviteSerializer, SomeResponseSerializer,
+    TokensSerializer,
 )
 from .models import Client
 
@@ -56,7 +60,11 @@ class CustomAuth(APIView):
             except TokenError as e:
                 logger.warning(msg=e)
                 pass
-
+    
+    @extend_schema(
+        description="Pass.",
+        responses={405: SomeResponseSerializer}
+    )
     def get(self, request: Request) -> Response:
         """
         Handle GET requests.
@@ -66,10 +74,19 @@ class CustomAuth(APIView):
         :return: Response indicating that POST and PATCH methods should be used.
         :rtype: Response
         """
-        return Response(status=status.HTTP_200_OK, data={
+        serializer = SomeResponseSerializer(data={
             "response":"use POST and PATCH methods"
         })
+        serializer.is_valid(raise_exception=True)
+        return Response(
+            status=status.HTTP_405_METHOD_NOT_ALLOWED, 
+            data=serializer.data
+        )
 
+    @extend_schema(
+        request=PhoneNumberSerializer,
+        responses={200: SomeResponseSerializer},
+    )
     def post(self, request: Request) -> Response:
         """
         Handle POST requests for phone number verification.
@@ -88,10 +105,19 @@ class CustomAuth(APIView):
         otp = Client.objects.generate_otp()
         time.sleep(2.0)
         cache.set(key=f"{otp}_client", value=client, timeout=120)
-        return Response(status=status.HTTP_200_OK, data={
+        response = SomeResponseSerializer(data={
             "response":f"We will sent code to you in sms.(use {otp}), you have 2 minutes to confirm your number!"
         })
+        response.is_valid(raise_exception=True)
+        return Response(status=status.HTTP_200_OK, data=response.data)
 
+    @extend_schema(
+        request=OTPSerializer,
+        responses={
+            200: TokensSerializer,
+            400: SomeResponseSerializer
+        },
+    )
     def patch(self, request: Request) -> Response:
         """
         Handle PATCH requests for OTP verification.
@@ -113,11 +139,17 @@ class CustomAuth(APIView):
             
             pairs = self.create_tokens(client=client)
             cache.delete(key=f"{otp}_client")
-            return Response(status=status.HTTP_200_OK, data=pairs)
+            response = TokensSerializer(data=pairs)
+            response.is_valid(raise_exception=True)
+            return Response(status=status.HTTP_200_OK, data=response.data)
         
         logger.info(msg="User not found!")
+        response = SomeResponseSerializer(data={
+            "response": "Пользователь не найден, возможно вы ждали дольше 2 минут. Вернитесь на предыдущий шаг."
+        })
+        response.is_valid(raise_exception=True)
         return Response(
-            data={"response": "Пользователь не найден, возможно вы ждали дольше 2 минут. Вернитесь на предыдущий шаг."},
+            data=response.data,
             status=status.HTTP_400_BAD_REQUEST
         )
 
@@ -131,6 +163,7 @@ class PersonalArea(APIView):
 
     authentication_classes = [JWTAuthentication]
 
+    @extend_schema(responses={200:ClientSerializer})
     def get(self, request: Request) -> Response:
         """
         Handle GET requests to retrieve client data.
@@ -146,6 +179,13 @@ class PersonalArea(APIView):
 
         return Response(status=status.HTTP_200_OK, data=data)
     
+    @extend_schema(
+        request=InviteSerializer,
+        responses={
+            200:SomeResponseSerializer,
+            400:SomeResponseSerializer
+        }
+    )
     def patch(self, request: Request) -> Response:
         """
         Handle PATCH requests to update inviter information.
@@ -162,17 +202,30 @@ class PersonalArea(APIView):
         try:
             inviter = Client.objects.get(invite_code=invited_by)
             if client.invited_by:
-                return Response(data={
+                response = SomeResponseSerializer(data={
                     "response":"ERROR: you already have inviter!"
-                }, status=status.HTTP_400_BAD_REQUEST)
+                })
+                response.is_valid(raise_exception=True)
+                return Response(
+                    data=response.data, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             elif not client.invited_by:
                 client.invited_by = inviter
                 client.save(update_fields=("invited_by",))
-                return Response(status=status.HTTP_200_OK, data={
+                response = SomeResponseSerializer(data={
                     "response":"Inviter added!"
                 })
+                response.is_valid(raise_exception=True)
+                return Response(
+                    status=status.HTTP_200_OK, data=response.data
+                )
         except Client.DoesNotExist:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={
+            response = SomeResponseSerializer(data={
                 "response":f"ERROR: the client with code: {invited_by} not found."
             })
+            response.is_valid(raise_exception=True)
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST, data=response.data
+            )
 
